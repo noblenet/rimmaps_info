@@ -1,5 +1,5 @@
 name: hd_info_getter
-description: A sample command-line application.
+description: A command-line application to retrieve and calculate rimmap info from headerfiles.
 version: 1.0.0
 # repository: https://github.com/my_org/my_repo
 
@@ -8,6 +8,7 @@ environment:
 
 # Add regular dependencies here.
 dependencies:
+  args: ^2.4.2
   # path: ^1.8.0
 
 dev_dependencies:
