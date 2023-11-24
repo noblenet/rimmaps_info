@@ -7,7 +7,8 @@ import 'package:path/path.dart' as p;
 import 'package:logging/logging.dart';
 import 'package:http/http.dart' as http;
 
-final Logger _logger = Logger('MyApp');
+final Logger _logger = Logger('hd_info_getter');
+final bool isDebug = bool.fromEnvironment('dart.vm.product') != true;
 
 void writeFilesToJson(
     List<String> fileNamesFull, String jsonFileName, Logger logger) {
@@ -21,10 +22,11 @@ void writeFilesToJson(
 
     try {
       String context = textFile.readAsStringSync();
-      logger.fine(context);
+
       // Brug path-biblioteket til at adskille filnavn og sti
       String fileName = p.basenameWithoutExtension(fullFileName);
       String filePath = p.dirname(fullFileName);
+      print(fileName);
 
       // Opret et map med de ønskede oplysninger
       Map<String, dynamic> jsonMap = {
@@ -35,6 +37,7 @@ void writeFilesToJson(
 
       // Konverter map til JSON-streng
       String jsonString = json.encode(jsonMap);
+      print('Fil med $jsonString som indhold');
 
       // Gem JSON i en fil med det ønskede navn
       File jsonFile = File('$jsonFileName.json');
@@ -83,7 +86,7 @@ void main(List<String> arguments) {
     final String outputFormat = args['output'];
     final String logLevel = args['log'];
 
-    var outputFile = File('log.log');
+    var outputFile = File('hdinfogetter.log');
 
     Logger.root.level = Level.ALL;
     Logger.root.onRecord.listen((LogRecord rec) {
@@ -94,6 +97,7 @@ void main(List<String> arguments) {
 
 //find the files
     var hdFiles = findHdFiles(path);
+    print('Fandt ${hdFiles.length} filer');
 
     // Eksempel: Opret CSV-fil
     if (outputFormat == 'csv') {
@@ -111,6 +115,7 @@ void main(List<String> arguments) {
     } else {
       infoLogging();
     }
+    print('Tid brugt: ${stopwatch.elapsed}');
   } on ArgParserException catch (e) {
     print(e.message);
     print(argParser.usage);
@@ -119,6 +124,12 @@ void main(List<String> arguments) {
 
 List<String> findHdFiles(String folderPath) {
   List<String> hdFiles = [];
+
+  void printListOfStringa(List<String> files) {
+    if (!isDebug) return;
+    print('Fandt følgende HD-filer:');
+    files.forEach((file) => print(file));
+  }
 
   void searchInFolder(String folderPath) {
     Directory(folderPath).listSync().forEach((FileSystemEntity entity) {
