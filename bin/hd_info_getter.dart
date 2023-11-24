@@ -12,6 +12,11 @@ final bool isDebug = bool.fromEnvironment('dart.vm.product') != true;
 
 void writeFilesToJson(
     List<String> fileNamesFull, String jsonFileName, Logger logger) {
+//Mske the full name of putput
+  jsonFileName = '$jsonFileName.json';
+  File jsonFile = File(jsonFileName);
+  String resultTxt = 'JSON er blevet gemt i filen: $jsonFile';
+
   for (String fullFileName in fileNamesFull) {
     File textFile = File(fullFileName);
 
@@ -26,7 +31,6 @@ void writeFilesToJson(
       // Brug path-biblioteket til at adskille filnavn og sti
       String fileName = p.basenameWithoutExtension(fullFileName);
       String filePath = p.dirname(fullFileName);
-      print(fileName);
 
       // Opret et map med de ønskede oplysninger
       Map<String, dynamic> jsonMap = {
@@ -37,17 +41,14 @@ void writeFilesToJson(
 
       // Konverter map til JSON-streng
       String jsonString = json.encode(jsonMap);
-      print('Fil med $jsonString som indhold');
-
       // Gem JSON i en fil med det ønskede navn
-      File jsonFile = File('$jsonFileName.json');
       jsonFile.writeAsStringSync(jsonString);
-
-      logger.info('JSON er blevet gemt i filen: $jsonFileName.json');
     } catch (error) {
       logger.severe('Fejl ved behandling af filen "$fullFileName": $error');
     }
   }
+  print(resultTxt);
+  logger.info(resultTxt);
 }
 
 void main(List<String> arguments) {
@@ -94,6 +95,11 @@ void main(List<String> arguments) {
           "${rec.time} | ${rec.level} | ${rec.message} | ${rec.loggerName}\n",
           mode: FileMode.append);
     });
+    void printListOfStrings(List<String> files) {
+      if (!isDebug) return;
+      print('Fandt følgende HD-filer:');
+      files.forEach((file) => print(file));
+    }
 
 //find the files
     var hdFiles = findHdFiles(path);
@@ -103,6 +109,7 @@ void main(List<String> arguments) {
     if (outputFormat == 'csv') {
       createCsvFile(path, name);
     }
+    // printListOfStrings(hdFiles);
 
     // Eksempel: Opret JSON-fil
     if (outputFormat == 'json') {
@@ -125,12 +132,6 @@ void main(List<String> arguments) {
 List<String> findHdFiles(String folderPath) {
   List<String> hdFiles = [];
 
-  void printListOfStringa(List<String> files) {
-    if (!isDebug) return;
-    print('Fandt følgende HD-filer:');
-    files.forEach((file) => print(file));
-  }
-
   void searchInFolder(String folderPath) {
     Directory(folderPath).listSync().forEach((FileSystemEntity entity) {
       if (entity is File && entity.path.toLowerCase().endsWith('.hd')) {
@@ -141,6 +142,7 @@ List<String> findHdFiles(String folderPath) {
     });
   }
 
+//recursive call
   searchInFolder(folderPath);
   return hdFiles;
 }
